@@ -32,7 +32,7 @@ While the normal distribution is symmetric, the lognormal distribution is skewed
 
 You can generate a random sample of lognormal variables in two different ways. You can compute a random sample of normal variables (using rnorm) and then exponentiating the values, or you can generate the lognormal values directly using the rlnorm function.
 
-```{r simple}
+```{r simple, fig.width=7, fig.height=1.33}
 y <- rnorm(1000, 0, 1)
 x1 <- exp(y)
 lb1 <- "exp(rnorm)"
@@ -74,7 +74,7 @@ I mention this because that Jacobian is needed at times with Bayesian models.
 
 Here's what the density function looks like for a lognormal(0, 1) distribution.
 
-```{r density1}
+```{r density1, fig.width=7, fig.height=2}
 x <- seq(0, 10, length=1000)
 y <- dlnorm(x, 0, 1)
 data.frame(x, y) %>%
@@ -88,7 +88,7 @@ The parameter $\mu$ in a lognormal distribution is referred to as a scale parame
 
 Compare the densitiy of the lognormal(0, 1) shown above to the density of the lognormal(2, 1).
 
-```{r density2}
+```{r density2, fig.width=7, fig.height=2}
 x <- seq(0, 10, length=1000)
 x <- x*exp(2)
 y <- dlnorm(x, 2, 1)
@@ -103,9 +103,9 @@ The two distributions look identical, except for the tick marks on the X axis. T
 
 So how does the scale parameter $\sigma$ from a normal distribution become a shape parameter in a lognormal distribution? The exponential function is curved and ends up stretching the high values of the normal distribution and squeezing the low values of the normal distribution. This creates right skew. How much skew depends on how much variation there is in the underlying normal distribution. If the underlying normal distribution has a small standard deviation, producing a small effective range, the exponential function isn't too much different from a linear functiton. So this lognormal doesn't skew very much. The curvature of the exponential functiton becomes more pronounced as standard deviation increases, producing more extreme skews.
 
-Here is the density function for a lognormal distribution with $\sigma$ = 0.1
+Here is the density function for a lognormal distribution with a range of values for $\sigma$.
 
-```{r density3}
+```{r density3, fig.width=7, fig.height=5}
 sigma.list <- c(0.1, 0.2, 0.5, 1)
 lb <- paste("sigma =", sigma.list)
 x <- rep(seq(0, 5, length=1000), 4)
@@ -139,7 +139,7 @@ Fair enough. By making the lognormal distribution have a mean of zero on the und
 
 Start with a relatively small amount of variation between sites, a GSD=1.2. The earlier simulations using a single site showed a predicted total sample size of about 350 patients. A multicenter study with GSD=1.2 appears to produce a predicted total sample size that is also around 350 patients on average.
 
-```{r lognormal1a, fig.height=1, fig.width=5}
+```{r lognormal1a, fig.height=1, fig.width=7}
 f <- "lognormal1.stan"
 da <- list(N=350, T=3*365, S=0.5, M=10,
   S1=0.5, GSD=1.2)
@@ -164,7 +164,7 @@ sim_ln1a                                 %>%
 
 When the GSD increases to 1.5, you see a lot more variation in the estimated total sample size, but also a bit larger.
 
-```{r lognormal1b, fig.width=5, fig.height=1.33}
+```{r lognormal1b, fig.width=7, fig.height=1.33}
 f <- "lognormal1.stan"
 da <- list(N=350, T=3*365, S=0.5, M=10,
   S1=0.5, GSD=1.5)
@@ -190,7 +190,7 @@ sim_ln1b                                 %>%
 
 Increase the GSD again to 2.0 and you have an even larger estimated total sample size.
 
-```{r lognormal1c, fig.width=5, fig.height=1.67}
+```{r lognormal1c, fig.width=7, fig.height=1.67}
 f <- "lognormal1.stan"
 da <- list(N=350, T=3*365, S=0.5, M=10,
   S1=0.5, GSD=2.0)
@@ -223,7 +223,7 @@ $E[Y] = e^{\mu+0.5\sigma^2}$
 
 So this suggests a solution to our problem. Set $\mu$ to $-0.5\sigma^2$ instead of 0. Changing $\mu$ effectively rescales the lognormal distribution so that the arithmetic mean of the lognormal distribution is always 1.
 
-```{r lognormal2a, fig.width=5, fig.height=1.67}
+```{r lognormal2, fig.width=7, fig.height=1.67}
 f <- "lognormal2.stan"
 da <- list(N=350, T=3*365, S=0.5, M=10, GSD=1.2)
 fit_ln2a <- stan(file=f,
@@ -269,4 +269,4 @@ This produces a series of lognormal distributions where the arithmetic mean is 1
 
 Now, I have worked a lot with the lognormal distribution in the past, so I should have known this, but it's easy to overlook things when you're in a rush and there are complications pouring in from all directions.
 
-You could develop an accrual model where the center variations follow a different distribution. A Gamma distribution, for example where the $\alpha$ and $\beta$ parameters are constrained to be equal, for example, is a reasonable alternative.
+You could develop an accrual model where the center variations follow a different distribution. A Gamma distribution, for example where the $\alpha$ and $\beta$ parameters are constrained to be equal, for example, is a reasonable alternative. When I get a chance, I want to look at these choices a bit more closely.
